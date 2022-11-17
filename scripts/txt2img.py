@@ -13,6 +13,7 @@ import time
 from pytorch_lightning import seed_everything
 from torch import autocast
 from contextlib import contextmanager, nullcontext
+import re
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -332,6 +333,59 @@ def main():
                                 img = Image.fromarray(x_sample.astype(np.uint8))
                                 img = put_watermark(img, wm_encoder)
                                 img.save(os.path.join(sample_path, f"{base_count:05}.png"))
+                                # ================ save params to txt file ================
+                                # @see https://github.com/CompVis/stable-diffusion/issues/121
+                                outFileName = opt.prompt
+                                outFileName = re.sub(', ' , '-', outFileName)
+                                outFileName = re.sub(',' , '-', outFileName)
+                                outFileName = re.sub('  ' , ' ', outFileName)
+                                outFileName = re.sub(' ' , '_', outFileName)
+                                outFileName = re.sub('__' , '_', outFileName)
+                                outFileName = re.sub('\'' , '', outFileName)
+                                outFileName = re.sub('\/' , '', outFileName)
+                                outFileName = outFileName[0:240]
+                                outFileName += "-" + f"{base_count:05}.png"
+                                # img.save(os.path.join(sample_path, f"{base_count:05}.png"))
+                                img.save(os.path.join(sample_path, outFileName))
+                                with open(sample_path + "/" + outFileName + ".txt", 'w') as outFileParams:
+                                    outFileParams.write("Prompt: " + str(opt.prompt) + "\n")
+                                    outFileParams.write("Output Directory: " + str(opt.outdir) + "\n")
+                                    outFileParams.write("Number of Sampling Steps: " + str(opt.ddim_steps) + "\n")
+                                    outFileParams.write("Deterministic ETA Sampling: " + str(opt.ddim_eta) + "\n")
+                                    outFileParams.write("Iterations: " + str(opt.n_iter) + "\n")
+                                    outFileParams.write("Channels: " + str(opt.C) + "\n")
+                                    outFileParams.write("Factor: " + str(opt.f) + "\n")
+                                    outFileParams.write("Number of Samples: " + str(opt.n_samples) + "\n")
+                                    outFileParams.write("Number of Rows: " + str(opt.n_rows) + "\n")
+                                    outFileParams.write("Scale: " + str(opt.scale) + "\n")
+                                    outFileParams.write("Config: " + str(opt.config) + "\n")
+                                    outFileParams.write("Model: " + str(opt.ckpt) + "\n")
+                                    outFileParams.write("Seed: " + str(opt.seed) + "\n")
+                                    outFileParams.write("Height: " + str(opt.H) + "\n")
+                                    outFileParams.write("Width: " + str(opt.W) + "\n")
+                                    if opt.laion400m:
+                                        outFileParams.write("laion400m: " + "True" + "\n")
+                                    else:
+                                        outFileParams.write("laion400m: " + "False" + "\n")
+                                    if opt.plms:
+                                        outFileParams.write("PLMS: " + "True" + "\n")
+                                    else:
+                                        outFileParams.write("PLMS: " + "False" + "\n")
+                                    if opt.skip_grid:
+                                        outFileParams.write("Skip Grid: " + "--skip_grid Enabled\n")
+                                    else:
+                                        outFileParams.write("Skip Grid: " + "--skip_grid Disabled\n")
+                                    if opt.skip_save:
+                                        outFileParams.write("Skip Save: " + "--skip_save Enabled\n")
+                                    else:
+                                        outFileParams.write("Skip Save: " + "--skip_save Disabled\n")
+                                    if opt.from_file:
+                                        outFileParams.write("Prompt File: " + str(opt.from_file) + "\n")
+                                    if opt.fixed_code:
+                                        outFileParams.write("Fixed Input: " + str(opt.fixed_code) + "\n")
+                                    if opt.precision:
+                                        outFileParams.write("Precision Scope: " + str(opt.precision) + "\n")
+                                # ================ ENDsave params to txt file ================
                                 base_count += 1
 
                         if not opt.skip_grid:
