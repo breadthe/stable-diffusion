@@ -1,8 +1,20 @@
 # Customizations
 
-* Disable the safety (NSFW) checker
-* Save the generation parameters to a text file
-* Add a sample image for `img2img`
+* Disable the safety (NSFW) checker.
+* Save the generation parameters to a text file.
+* Add a sample image for `img2img`.
+* Add a .gitignore file.
+
+# Create a symlink to the model
+
+Instead of copying the model to the SD installation, keep it separately and symlink it instead. Run this in the SD installation root:
+
+```shell
+mkdir -p models/ldm/stable-diffusion-v1
+ln -s ~/code/ml/models/sd-v1-4.ckpt models/ldm/stable-diffusion-v1/model.ckpt
+```
+
+`~/code/ml/models/sd-v1-4.ckpt` is the original location of the model.
 
 # Apple Silicon Mac Users
 
